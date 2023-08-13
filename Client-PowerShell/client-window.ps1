@@ -32,16 +32,22 @@ Write-Output ("RAM Frequency(MHz): " + ($ramFrequency -join " "))
 Write-Output ("Logged In User: " + $currentUsername)
 Write-Output ("IP Address: " + $ipAddress)
 
-$logicalDisks | ForEach-Object {
+$diskDetails = @($logicalDisks | ForEach-Object {
     $relatedPhysicalDrive = $physicalDrives | Where-Object { $_.DeviceID -eq $_.DeviceID }
     $diskType = if (3 -in $relatedPhysicalDrive.Capabilities) { "SSD" } else { "HDD" }
     
     Write-Output ("Drive Letter: " + $_.DeviceID + " Total Size(GB): " + [math]::Round($_.Size / 1GB, 2) + 
                   " Used Size(GB): " + [math]::Round(($_.Size - $_.FreeSpace) / 1GB, 2) + " Type: " + $diskType)
-}
+    
+    return @{
+        "driveLetter" = $_.DeviceID
+        "totalSizeGB" = [math]::Round($_.Size / 1GB, 2)
+        "usedSizeGB"  = [math]::Round(($_.Size - $_.FreeSpace) / 1GB, 2)
+        "diskType"    = $diskType
+    }
+})
 
 Write-Output "---------------------------------------"
-
 
 # Split the $currentUsername to extract PC Name and User Name
 $splitUsername = $currentUsername -split "\\"
@@ -60,19 +66,8 @@ $jsonData = @{
     "pcName"           = $pcName
     "loggedInUser"     = $loggedInUser
     "ipAddress"        = $ipAddress
-    "disks"            = $logicalDisks | ForEach-Object {
-        $relatedPhysicalDrive = $physicalDrives | Where-Object { $_.DeviceID -eq $_.DeviceID }
-        $diskType = if (3 -in $relatedPhysicalDrive.Capabilities) { "SSD" } else { "HDD" }
-
-        @{
-            "driveLetter" = $_.DeviceID
-            "totalSizeGB" = [math]::Round($_.Size / 1GB, 2)
-            "usedSizeGB"  = [math]::Round(($_.Size - $_.FreeSpace) / 1GB, 2)
-            "diskType"    = $diskType
-        }
-    }
+    "disks"            = $diskDetails
 } | ConvertTo-Json
-
 
 # Send POST request to the specified API
 Invoke-RestMethod -Method Post -Uri "http://localhost:9000/api/v1/pcinfo" -Body $jsonData -ContentType "application/json"
