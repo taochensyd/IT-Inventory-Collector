@@ -9,20 +9,11 @@ $password = Read-Host -Prompt "Enter the admin password" -AsSecureString
 $credential = New-Object System.Management.Automation.PSCredential($username, $password)
 Add-Computer -DomainName $domain -Credential $credential -Restart:$false
 
-# Setup local Account admin, admin2, admin3 and ask user to enter password with each account
-$adminAccounts = @("admin", "admin2", "admin3")
-foreach ($account in $adminAccounts) {
-    $password = Read-Host -Prompt "Enter the password for $account" -AsSecureString
-    New-LocalUser -Name $account -Password $password
-    Add-LocalGroupMember -Group "Administrators" -Member $account
-}
-
 # Turn off firewall
 Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False
 
 # Set static IP address(Ask user to enter the ip) subnet mask is 255.255.255.0 and default gateway is 192.168.0.254
 $ipAddress = Read-Host -Prompt "Enter the IP address"
-$subnetMask = "255.255.255.0"
 $defaultGateway = "192.168.0.254"
 New-NetIPAddress -IPAddress $ipAddress -PrefixLength 24 -DefaultGateway $defaultGateway
 
