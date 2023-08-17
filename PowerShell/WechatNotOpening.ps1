@@ -16,13 +16,11 @@ if (Test-Path $WeChatFolder) {
 }
 
 # Open WeChat.exe
-Start-Process "C:\Program Files (x86)\Tencent\WeChat\WeChat.exe"
-
-# Display a countdown from 10 before closing the PowerShell window
-for ($i = 10; $i -gt 0; $i--) {
-    Write-Host "Current window will close in $i..."
-    Start-Sleep -Seconds 1
+try {
+    Start-Process "C:\Program Files (x86)\Tencent\WeChat\WeChat.exe" -ErrorAction Stop
+    Write-Host "WeChat has been successfully opened"
+} catch {
+    Write-Host "An error occurred while trying to open WeChat: $($_.Exception.Message)"
 }
-Write-Host "Closing current window..."
-Start-Sleep -Seconds 1
+
 exit
