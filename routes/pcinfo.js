@@ -12,8 +12,14 @@ router.post('/', async (req, res) => {
     const currentTime = new Date().toLocaleTimeString();
 
     const workbook = new ExcelJS.Workbook();
-    const filePath = path.join('C:\\data', 'pc_info.xlsx');
+    const folderPath = 'C:\\data';
+    const filePath = path.join(folderPath, 'pc_info.xlsx');
     let currentId = 1;  // start with default ID
+
+    // Check if the folder path exists and create it if it does not
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath);
+    }
 
     // Check if the Excel file exists
     if (fs.existsSync(filePath)) {
@@ -80,7 +86,7 @@ router.post('/', async (req, res) => {
 
     await workbook.xlsx.writeFile(filePath);
 
-    res.status(200).send('Data processed and Excel file updated/created successfully in C:\\data');
+    res.status(200).send(`Data processed and Excel file updated/created successfully in ${folderPath}`);
 });
 
 module.exports = router;
