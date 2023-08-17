@@ -1,4 +1,14 @@
-﻿# Get CPU details
+﻿# Define the credentials for the remote computer
+$username = ""
+$password = ""
+$securePassword = ConvertTo-SecureString $password -AsPlainText -Force
+$credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $username, $securePassword
+
+
+
+Invoke-Command -ComputerName 192.168.0.158 -Credential $credentials -ScriptBlock {
+
+# Get CPU details
 $cpu = Get-WmiObject -Class Win32_Processor
 
 # Get RAM details
@@ -70,4 +80,6 @@ $jsonData = @{
 } | ConvertTo-Json
 
 # Send POST request to the specified API
-Invoke-RestMethod -Method Post -Uri "http://localhost:9000/api/v1/pcinfo" -Body $jsonData -ContentType "application/json"
+Invoke-RestMethod -Method Post -Uri "http://192.168.0.165:9000/api/v1/pcinfo" -Body $jsonData -ContentType "application/json"
+
+}
