@@ -23,7 +23,7 @@ try {
             Start-Sleep -Seconds 1
             # Check if a key has been pressed to cancel the shutdown
             if ($host.UI.RawUI.KeyAvailable) {
-                $key = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                 Write-Host "`nShutdown cancelled"
                 exit
             }
